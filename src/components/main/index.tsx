@@ -4,6 +4,8 @@ import Hero from '../heroCompunents/heroSection/hero'
 import State from '../heroCompunents/stateBur/state'
 import CardCloud from '../heroCompunents/cloudAllCard/cardCloud'
 import WhatT from '../heroCompunents/whatTOCS/whatT'
+import ClassRom from '../heroCompunents/classroomSec/class'
+import Footer from '../layout/footer/footer'
 
 function IndexFile() {
   return (
@@ -13,6 +15,8 @@ function IndexFile() {
        <State />
        <CardCloud />
        <WhatT />
+       <ClassRom />
+       <Footer />
     </div>
   )
 }
