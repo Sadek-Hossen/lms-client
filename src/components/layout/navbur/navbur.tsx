@@ -12,6 +12,7 @@ const ResponsiveNavbar = () => {
 
   return (
     <nav className="flex items-center border-b-2 border-gray-600 justify-between w-full relative dark:bg-slate-900 bg-[#49BBBD]  px-3 py-2">
+  <Link href={"/"}>
     <Image
         src={logo}
         alt="logo"
@@ -19,21 +20,30 @@ const ResponsiveNavbar = () => {
         height={55}
         className="w-14"
       />
+  </Link>
 
       {/* nav links */}
       <ul className="items-center gap-5 text-base text-[#424242] md:flex hidden">
+       <Link href={"/"}>
         <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          home
+          Home
         </li>
+       </Link>
+        <Link href={"/courses"}>
         <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          features
+          Course
         </li>
+        </Link>
+        <Link href={"/blog"}>
         <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
           blogs
         </li>
+        </Link>
+        <Link href={"/aboutPage"}>
         <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          shop
+          About Us
         </li>
+        </Link>
       </ul>
 
       {/* action buttons */}
