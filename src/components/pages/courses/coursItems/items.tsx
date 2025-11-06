@@ -137,7 +137,7 @@ function CoursItems() {
               href="/"
               className="opacity-0 group-hover:opacity-100 w-[90%] mx-auto mb-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-xl transition-all duration-300 transform group-hover:-translate-y-1 text-center"
             >
-              Go Home
+              Enrole Course
             </Link>
           </div>
         ))}
