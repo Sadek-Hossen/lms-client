@@ -49,7 +49,7 @@ function CourseCreate() {
     toast.success("Course created successfully!");
      }
       // STEP 3: UI success message
-      toast.error("Course created failed");
+     
 
       // STEP 4: Redirect (if needed)
       

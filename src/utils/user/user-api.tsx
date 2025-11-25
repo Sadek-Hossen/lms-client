@@ -1,5 +1,6 @@
 import axios from "axios"
 import URL from "./backendUrl"
+import toast from "react-hot-toast";
 
 export const singup = async (formData: any) => {
    try {
@@ -46,6 +47,7 @@ export const courseCreate = async (formData: any,router:any) => {
      if(response.status===200 || response.status===201){
       router.push("/courses")
      }
+      toast.error("Course created failed");
      console.log(response.data);
      return response.data;
    } catch (error) {
