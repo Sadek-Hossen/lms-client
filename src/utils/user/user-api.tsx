@@ -43,7 +43,7 @@ export const courseCreate = async (formData: any,router:any) => {
      const response = await axios.post(`${URL}/course/create`, formData, {
        withCredentials: true
      });
-     if(response.status===200){
+     if(response.status===200 || response.status===201){
       router.push("/courses")
      }
      console.log(response.data);
