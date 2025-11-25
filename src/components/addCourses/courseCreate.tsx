@@ -45,9 +45,11 @@ function CourseCreate() {
       const res = await courseCreate(formData, router)
 
       console.log("Response:", res)
-
+     if(res.status ==200 || res.status ===201){
+    toast.success("Course created successfully!");
+     }
       // STEP 3: UI success message
-      toast.success("Course created successfully!");
+      toast.error("Course created failed");
 
       // STEP 4: Redirect (if needed)
       router.push("/")
