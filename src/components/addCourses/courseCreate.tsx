@@ -47,6 +47,7 @@ function CourseCreate() {
       console.log("Response:", res)
      if(res.status ==200 || res.status==201){
     toast.success("Course created successfully!");
+    router.push("/courses")
      }
       // STEP 3: UI success message
       toast.error("Course created failed");
