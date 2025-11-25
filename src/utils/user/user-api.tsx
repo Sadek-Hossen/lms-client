@@ -68,10 +68,10 @@ export const getCourses = async ()=>{
 }
 export const getSingleCourses = async (id:string)=>{
   try {
-    const response = await axios.get(`${URL}/course/${id}`,{
+    const response = await axios.get(`${URL}/course/details/${id}`,{
       withCredentials: true
     })
-    console.log("this from api.coursedata", response.data)
+    //console.log("this from api.coursedata", response.data)
     return response.data;
 
 
