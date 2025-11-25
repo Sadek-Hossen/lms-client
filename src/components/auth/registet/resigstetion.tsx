@@ -28,7 +28,7 @@ function Registration() {
     e.preventDefault()
   try {
       const res = await singup(formData)
-    router.push("/")
+
     console.log(res)
 
     const { email, name, password } = formData
@@ -52,7 +52,7 @@ function Registration() {
 
     
     toast.success("Registration successful!")
-
+       router.push("/")
   
   } catch (error) {
     toast.error("user create faild")
