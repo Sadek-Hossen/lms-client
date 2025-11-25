@@ -1,71 +1,127 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
-import { IoIosSearch } from "react-icons/io";
+import React, { useEffect, useState } from "react";
 import { CiMenuFries } from "react-icons/ci";
-import logo from '@/app/assest/images/logo.png'
+import logo from "@/app/assest/images/logo.png";
 import Link from "next/link";
+import { getUser } from "../../../utils/user/user-api";
+import Cookies from "js-cookie"
 
 const ResponsiveNavbar = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string } | null>(null);
 
+  useEffect(() => {
+    const fatchUser = async () => {
+      try {
+        const res = await getUser();
+        setUser(res?.user);
+        console.log("this is coming from navbar user :", res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fatchUser();
+  }, []);
+
+
+  const handleRemoveCookie = () => {
+    Cookies.remove("token");
+    setUser(null);
+  }
   return (
-    <nav className="flex items-center border-b-2 border-gray-600 justify-between w-full relative dark:bg-slate-900 bg-[#49BBBD]  px-3 py-2">
-  <Link href={"/"}>
-    <Image
-        src={logo}
-        alt="logo"
-        width={55}
-        height={55}
-        className="w-14"
-      />
-  </Link>
+    <nav className="flex z-10 items-center border-b-2 border-gray-600 justify-between w-full relative dark:bg-slate-900 bg-[#49BBBD] px-3 py-2">
+      {/* Logo */}
+      <Link href="/">
+        <Image src={logo} alt="logo" width={55} height={55} className="w-14" />
+      </Link>
 
-      {/* nav links */}
+      {/* Desktop Navigation */}
       <ul className="items-center gap-5 text-base text-[#424242] md:flex hidden">
-       <Link href={"/"}>
-        <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          Home
+        <li>
+          <Link
+            href="/"
+            className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 capitalize"
+          >
+            Home
+          </Link>
         </li>
-       </Link>
-        <Link href={"/courses"}>
-        <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          Course
+
+        <li>
+          <Link
+            href="/courses"
+            className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 capitalize"
+          >
+            Course
+          </Link>
         </li>
-        </Link>
-        <Link href={"/blog"}>
-        <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          blogs
+
+        <li>
+          <Link
+            href="/blog"
+            className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 capitalize"
+          >
+            Blogs
+          </Link>
         </li>
-        </Link>
-        <Link href={"/aboutPage"}>
-        <li className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 cursor-pointer capitalize">
-          About Us
+
+        <li>
+          <Link
+            href="/aboutPage"
+            className="before:w-0 hover:before:w-full before:bg-white before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-white transition-all duration-300 before:left-0 capitalize"
+          >
+            About Us
+          </Link>
         </li>
-        </Link>
       </ul>
 
-      {/* action buttons */}
-      <div className="items-center gap-2 flex">
-       <Link href={"/authintication"}>
-        <button className="py-2 text-base px-6  rounded-full capitalize bg-white hover:bg-black hover:text-white  transition-all duration-300 sm:flex hidden">
-         Login
-        </button>
-       </Link>
-       <Link href={"/authintication"}>
-        <button className="py-2 text-white px-5 rounded-full capitalize bg-gray-300/50 hover:text-black   transition-all duration-300 sm:flex hidden">
-          Sign Up
-        </button>
-        </Link>
+      {/* Right Side Buttons */}
+      <div className="flex items-center gap-2">
+        {user ? (
+          <div className="flex items-center gap-2">
+            <details className="dropdown">
+              <summary className="btn m-1">{user.name}</summary>
 
+              <ul className="menu dropdown-content bg-base-100 rounded-box z-10 w-32 p-2 shadow-sm">
+                <li>
+                  <Link href="/courseCreate">Add Course</Link>
+                </li>
+
+                <li>
+                  <Link href="/">Profile</Link>
+                </li>
+              </ul>
+            </details>
+
+            <button onClick={handleRemoveCookie} className="text-white font-semibold cursor-pointer">
+              Logout
+            </button>
+          </div>
+        ) : (
+          <>
+            <Link href="/authintication">
+              <button className="py-2 text-base px-6 rounded-full capitalize bg-white hover:bg-black hover:text-white transition-all duration-300 sm:flex hidden">
+                Login
+              </button>
+            </Link>
+
+            <Link href="/authintication">
+              <button className="py-2 text-white px-5 rounded-full capitalize bg-gray-300/50 hover:text-black transition-all duration-300 sm:flex hidden">
+                Sign Up
+              </button>
+            </Link>
+          </>
+        )}
+
+        {/* Mobile Menu Icon */}
         <CiMenuFries
           className="text-2xl dark:text-[#abc2d3] mr-1 text-[#424242] cursor-pointer md:hidden flex"
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
         />
       </div>
 
-      {/* mobile sidebar */}
+      {/* Mobile Sidebar */}
       <aside
         className={`${
           mobileSidebarOpen
@@ -73,36 +129,36 @@ const ResponsiveNavbar = () => {
             : "translate-x-48 opacity-0 z-[-1]"
         } md:hidden bg-white p-4 text-center absolute top-16 dark:bg-slate-700 right-0 w-full sm:w-1/2 rounded-md transition-all duration-300`}
       >
-        
-
         <ul className="items-center gap-4 text-base text-gray-600 flex flex-col">
-          <li className="before:w-0 hover:before:w-full before:bg-[#3B9DF8] before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-[#3B9DF8] transition-all duration-300 before:left-0 cursor-pointer capitalize">
-            home
+          <li>
+            <Link href="/">Home</Link>
           </li>
-          <li className="before:w-0 hover:before:w-full before:bg-[#3B9DF8] before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-[#3B9DF8] transition-all duration-300 before:left-0 cursor-pointer capitalize">
-            features
+          <li>
+            <Link href="/courses">Course</Link>
           </li>
-          <li className="before:w-0 hover:before:w-full before:bg-[#3B9DF8] before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-[#3B9DF8] transition-all duration-300 before:left-0 cursor-pointer capitalize">
-            blogs
+          <li>
+            <Link href="/blog">Blogs</Link>
           </li>
-          <li className="before:w-0 hover:before:w-full before:bg-[#3B9DF8] before:h-0.5 before:transition-all before:duration-300 before:absolute relative before:rounded-full before:bottom-[-2px] dark:text-[#abc2d3] hover:text-[#3B9DF8] transition-all duration-300 before:left-0 cursor-pointer capitalize">
-            shop
+          <li>
+            <Link href="/aboutPage">About</Link>
           </li>
-        
-         
         </ul>
-        <div className="flex flex-col ">
-            <button className="py-2 text-black px-5 rounded-full mt-3  bg-gray-300 mb-4 ">
-         Login
-        </button>
-        <button className="py-2 text-black px-5 rounded-full  bg-gray-300     ">
-          Sign Up
-        </button>
-        </div>
-       
-        <div>
-          
-        </div>
+
+        {!user && (
+          <div className="flex flex-col">
+            <Link href="/authintication">
+              <button className="py-2 text-black px-5 rounded-full mt-3 bg-gray-300 mb-4">
+                Login
+              </button>
+            </Link>
+
+            <Link href="/authintication">
+              <button className="py-2 text-black px-5 rounded-full bg-gray-300">
+                Sign Up
+              </button>
+            </Link>
+          </div>
+        )}
       </aside>
     </nav>
   );

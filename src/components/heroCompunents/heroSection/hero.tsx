@@ -8,7 +8,7 @@ import { FaPlay } from "react-icons/fa";
 
 function Hero() {
   return (
-    <section className="relative bg-[#49BBBD] overflow-hidden">
+    <section className="relative bg-[#49BBBD] z-9 overflow-hidden">
       {/* Wave shape at the bottom */}
       <div className="absolute bottom-0 left-0 w-full h-32 z-0">
         <svg

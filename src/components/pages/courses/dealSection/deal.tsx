@@ -6,21 +6,21 @@ import image2 from "@/app/assest/coursImage/Rectangle 188.png";
 import image3 from "@/app/assest/coursImage/Rectangle 189.png";
 
 const dealItems = [
-  {
+  { id:1,
     img: image1,
     percent: "50%",
     title: "Lorem ipsum dolor",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.",
   },
-  {
+  {  id:2,
     img: image2,
     percent: "10%",
     title: "Lorem ipsum dolor",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.",
   },
-  {
+  { id:3,
     img: image3,
     percent: "50%",
     title: "Lorem ipsum dolor",
