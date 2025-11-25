@@ -1,11 +1,10 @@
-import React from 'react'
-import Cashout from '@/components/cashout/cashout'
-function Page() {
-  return (
-    <div>
-        <Cashout />
-    </div>
-  )
-}
+import React, { Suspense } from 'react';
+import Cashout from '@/components/cashout/cashout';
 
-export default Page
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Cashout />
+    </Suspense>
+  );
+}

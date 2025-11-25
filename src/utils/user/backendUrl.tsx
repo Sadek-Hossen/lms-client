@@ -1,4 +1,4 @@
 
 
-const URL ="http://localhost:5000/api"
+const URL ="https://lms-backend-six-psi.vercel.app/api"
 export default URL

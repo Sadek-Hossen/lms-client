@@ -19,7 +19,7 @@ interface Course {
 }
 
 const Page = () => {
-  const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
   const [course, setCourse] = useState<Course | null>(null);
 
   useEffect(() => {
@@ -36,7 +36,6 @@ const Page = () => {
 
     fetchData();
   }, [id]);
-
   if (!course)
     return <p className="p-10 text-center">Loading product details...</p>;
 
