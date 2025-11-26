@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getSingleCourses } from "../../../../utils/user/user-api";
 import Link from "next/link";
-import { CiAlarmOn } from "react-icons/ci";
-import { IoGridOutline } from "react-icons/io5";
-import coursProfile from "@/app/assest/coursImage/coursProfile.png";
-import { getCourses } from "../../../../utils/user/user-api";
 
 interface Course {
   _id: number;
@@ -19,98 +18,73 @@ interface Course {
   recentPrice: string;
 }
 
-function CoursItems() {
-  const [courses, setCourses] = useState<Course[]>([]);
+const Page = () => {
+    const { id } = useParams<{ id: string }>();
+  const [course, setCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    if (!id) return;
+
+    const fetchData = async () => {
       try {
-        const res = await getCourses();
-        setCourses(res?.courses || []);
-        console.log("Courses from API:", res?.courses);
+        const res = await getSingleCourses(id);
+        setCourse(res?.courses || null);
       } catch (error) {
-        console.log(error);
+        console.log("Error:", error);
       }
     };
-    fetchCourses();
-  }, []);
+
+    fetchData();
+  }, [id]);
+  if (!course)
+    return <p className="p-10 text-center">Loading product details...</p>;
 
   return (
-    <section className="py-16 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-[#EAF3FF] to-white">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
-        Popular Courses
-      </h2>
-
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
-        {courses?.map((item) => (
-          <Link href={`/courseDetails/${item._id}`} key={item._id}>
-            <div className="group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col">
-              {/* Image Section */}
-              <div className="relative w-full h-52">
-                <Image
-                  src={item.img}
-                  alt={item.mainTitle}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Card Content */}
-              <div className="p-5 flex flex-col flex-grow">
-                <div className="flex justify-between items-center text-gray-500 text-sm mb-3">
-                  <span className="flex items-center gap-2">
-                    <IoGridOutline className="text-blue-500" /> {item.icon1Title}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <CiAlarmOn className="text-orange-500" /> {item.icon2Title}
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  {item.mainTitle}
-                </h3>
-                <p className="text-gray-500 text-sm flex-grow">{item.description}</p>
-
-                {/* Profile & Price */}
-                <div className="flex justify-between items-center mt-4">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={coursProfile}
-                      alt={item.profileName}
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-                    <span className="text-sm text-gray-700">{item.profileName}</span>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-gray-400 line-through text-sm">{item.deletePrice}</p>
-                    <p className="text-green-600 font-bold">{item.recentPrice}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hover Buttons */}
-              <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 w-[90%] mx-auto mb-4 transition-all duration-300 transform group-hover:-translate-y-1">
-                {/* Enroll Button */}
-                <div className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-xl text-center cursor-pointer">
-                  Enroll Course
-                </div>
-
-                {/* Edit Button */}
-                <Link href={`/updateCourse/${item._id}`}>
-                  <div className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-xl text-center cursor-pointer">
-                    Edit
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </Link>
-        ))}
+    <div className="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
+      {/* Left - Image */}
+      <div>
+        <Image
+          src={course.img}
+          alt={course.mainTitle}
+          width={600}
+          height={500}
+          className="w-full h-auto rounded-lg shadow"
+        />
       </div>
-    </section>
-  );
-}
 
-export default CoursItems;
+      {/* Right - Details */}
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">{course.mainTitle}</h1>
+
+        <p className="text-gray-700">{course.description}</p>
+
+        {/* Price */}
+        <div className="flex items-center gap-4">
+          <span className="text-2xl font-semibold text-[#0FABCA]">
+            ${course.recentPrice}
+          </span>
+
+          {course.deletePrice && (
+            <span className="text-gray-500 line-through text-lg">
+              ${course.deletePrice}
+            </span>
+          )}
+        </div>
+
+        {/* Button (SEND DATA TO CASHOUT PAGE) */}
+        <Link
+          href={`/cashRout?title=${course.mainTitle}&price=${course.recentPrice}&img=${course.img}&desc=${course.description}`}
+        >
+          <button className="w-full py-3 bg-[#0FABCA] text-white rounded-md hover:bg-[#0FABCA]/80 text-lg font-medium">
+            Add to Cart
+          </button>
+        </Link>
+        <Link href={`/updateCourse/${course._id}`}>
+  <button>Edit</button>
+</Link>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
