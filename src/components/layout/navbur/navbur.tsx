@@ -109,7 +109,7 @@ const logout = async()=>{
                 </li>
 
                 <li>
-                  <Link href="/">Profile</Link>
+                  <Link href="/profile">Profile</Link>
                 </li>
               </ul>
             </details>
