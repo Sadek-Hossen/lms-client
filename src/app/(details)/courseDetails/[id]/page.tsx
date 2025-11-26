@@ -1,12 +1,14 @@
 "use client";
-
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getSingleCourses } from "../../../../utils/user/user-api";
+import Image from "next/image";
+import Link from "next/link";
+import { CiAlarmOn } from "react-icons/ci";
+import { IoGridOutline } from "react-icons/io5";
+import coursProfile from "@/app/assest/coursImage/coursProfile.png";
+import { getCourses } from "../../../../utils/user/user-api";
 
 interface Course {
-  _id: string;
+  _id: number;
   img: string;
   icon1Title: string;
   icon2Title: string;
@@ -17,151 +19,98 @@ interface Course {
   recentPrice: string;
 }
 
-const Page = () => {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+function CoursItems() {
+  const [courses, setCourses] = useState<Course[]>([]);
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // --------------------------
-  // FETCH SINGLE COURSE DATA
-  // --------------------------
   useEffect(() => {
-    if (!id) return;
-
-    const fetchData = async () => {
+    const fetchCourses = async () => {
       try {
-        const res = await getSingleCourses(id);
-
+        const res = await getCourses();
+        setCourses(res?.courses || []);
         console.log("Courses from API:", res?.courses);
-
-        if (Array.isArray(res?.courses) && res.courses.length > 0) {
-          setCourse(res.courses[0]);
-        } else {
-          setCourse(null);
-        }
-
       } catch (error) {
-        console.log("Error:", error);
-        setCourse(null);
-
-      } finally {
-        setLoading(false);
+        console.log(error);
       }
     };
+    fetchCourses();
+  }, []);
 
-    fetchData();
-  }, [id]);
-
-  if (loading) return <p className="p-10 text-center">Loading product details...</p>;
-  if (!course) return <p className="p-10 text-center">Course not found!</p>;
-
-  // --------------------------
-  // UPDATE COURSE HANDLER
-  // --------------------------
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`http://localhost:5000/course/${course._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mainTitle: course.mainTitle,
-          description: course.description,
-          recentPrice: course.recentPrice,
-          deletePrice: course.deletePrice,
-          img: course.img,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Course updated successfully!");
-        router.refresh();
-      } else {
-        alert(data.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error updating course");
-    }
-  };
-
-  // --------------------------
-  // UI SECTION
-  // --------------------------
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
-      
-      {/* Left - Image */}
-      <div>
-        <Image
-          src={course.img || "/placeholder.jpg"}
-          alt={course.mainTitle}
-          width={600}
-          height={500}
-          className="w-full h-auto rounded-lg shadow"
-          unoptimized
-        />
+    <section className="py-16 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-[#EAF3FF] to-white">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
+        Popular Courses
+      </h2>
+
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-7xl mx-auto">
+        {courses?.map((item) => (
+          <Link href={`/courseDetails/${item._id}`} key={item._id}>
+            <div className="group bg-white rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col">
+              {/* Image Section */}
+              <div className="relative w-full h-52">
+                <Image
+                  src={item.img}
+                  alt={item.mainTitle}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+
+              {/* Card Content */}
+              <div className="p-5 flex flex-col flex-grow">
+                <div className="flex justify-between items-center text-gray-500 text-sm mb-3">
+                  <span className="flex items-center gap-2">
+                    <IoGridOutline className="text-blue-500" /> {item.icon1Title}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CiAlarmOn className="text-orange-500" /> {item.icon2Title}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {item.mainTitle}
+                </h3>
+                <p className="text-gray-500 text-sm flex-grow">{item.description}</p>
+
+                {/* Profile & Price */}
+                <div className="flex justify-between items-center mt-4">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={coursProfile}
+                      alt={item.profileName}
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                    <span className="text-sm text-gray-700">{item.profileName}</span>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-gray-400 line-through text-sm">{item.deletePrice}</p>
+                    <p className="text-green-600 font-bold">{item.recentPrice}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hover Buttons */}
+              <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 w-[90%] mx-auto mb-4 transition-all duration-300 transform group-hover:-translate-y-1">
+                {/* Enroll Button */}
+                <div className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-xl text-center cursor-pointer">
+                  Enroll Course
+                </div>
+
+                {/* Edit Button */}
+                <Link href={`/updateCourse/${item._id}`}>
+                  <div className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-xl text-center cursor-pointer">
+                    Edit
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
-
-      {/* Right - Form */}
-      <div className="space-y-6">
-        <form onSubmit={handleUpdate} className="space-y-4">
-
-          <input
-            type="text"
-            value={course.mainTitle}
-            onChange={(e) => setCourse({ ...course, mainTitle: e.target.value })}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Course Title"
-          />
-
-          <textarea
-            value={course.description}
-            onChange={(e) => setCourse({ ...course, description: e.target.value })}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Course Description"
-          />
-
-          <input
-            type="text"
-            value={course.recentPrice}
-            onChange={(e) => setCourse({ ...course, recentPrice: e.target.value })}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Recent Price"
-          />
-
-          <input
-            type="text"
-            value={course.deletePrice}
-            onChange={(e) => setCourse({ ...course, deletePrice: e.target.value })}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Delete Price"
-          />
-
-          <input
-            type="text"
-            value={course.img}
-            onChange={(e) => setCourse({ ...course, img: e.target.value })}
-            className="w-full border px-3 py-2 rounded"
-            placeholder="Image URL"
-          />
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-[#0FABCA] text-white rounded-md hover:bg-[#0FABCA]/80 text-lg font-medium"
-          >
-            Update Course
-          </button>
-        </form>
-      </div>
-    </div>
+    </section>
   );
-};
+}
 
-export default Page;
+export default CoursItems;
