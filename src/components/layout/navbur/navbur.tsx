@@ -7,8 +7,13 @@ import logo from "@/app/assest/images/logo.png";
 import Link from "next/link";
 import { getUser } from "../../../utils/user/user-api";
 import Cookies from "js-cookie"
+import axios from "axios";
+import URL from "../../../../src/utils/user/backendUrl";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 const ResponsiveNavbar = () => {
+  const router = useRouter()
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [user, setUser] = useState<{ name: string } | null>(null);
 
@@ -25,11 +30,26 @@ const ResponsiveNavbar = () => {
     fatchUser();
   }, []);
 
-
-  const handleRemoveCookie = () => {
-    Cookies.remove("token");
-    setUser(null);
+const logout = async()=>{
+  try {
+      const res =await axios.post(`${URL}/user/logout`,{},{
+        withCredentials:true, }
+      );
+      if(res.status===200){
+        toast.success("Logout successful");
+        setUser(null);
+        router.push("/")
+        console.log("logout button clicked")        
+      }
+     
+  } catch (error) {
+      console.log(error);
+      toast.error("Logout failed");
+    
   }
+}
+
+
   return (
     <nav className="flex z-10 items-center border-b-2 border-gray-600 justify-between w-full relative dark:bg-slate-900 bg-[#49BBBD] px-3 py-2">
       {/* Logo */}
@@ -94,7 +114,7 @@ const ResponsiveNavbar = () => {
               </ul>
             </details>
 
-            <button onClick={handleRemoveCookie} className="text-white font-semibold cursor-pointer">
+            <button onClick={logout} className="text-white font-semibold cursor-pointer">
               Logout
             </button>
           </div>
