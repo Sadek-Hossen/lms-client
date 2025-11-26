@@ -10,7 +10,7 @@ import Cookies from "js-cookie"
 import axios from "axios";
 import URL from "../../../../src/utils/user/backendUrl";
 import toast from "react-hot-toast";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const ResponsiveNavbar = () => {
   const router = useRouter()
