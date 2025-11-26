@@ -1,70 +1,140 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { useParams } from "next/navigation";
-import URL from "@/utils/user/backendUrl";
+import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { getSingleCourses } from "../../../../utils/user/user-api";
 
-export default function UpdateCourse() {
-  const { id } = useParams();
-  const [course, setCourse] = useState({
-    title: "",
-    description: "",
-    price: "",
-  });
+interface Course {
+  _id: string; // id অবশ্যই string
+  img: string;
+  icon1Title: string;
+  icon2Title: string;
+  mainTitle: string;
+  description: string;
+  profileName: string;
+  deletePrice: string;
+  recentPrice: string;
+}
 
-  // Load old data
+const Page = () => {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    axios.get(`${URL}/course/${id}`).then((res) => {
-      setCourse(res.data.course);
-    });
+    if (!id) return;
+
+    const fetchData = async () => {
+      try {
+        const res = await getSingleCourses(id);
+        setCourse(res?.course || null); // backend response অনুযায়ী check
+        setLoading(false);
+      } catch (error) {
+        console.log("Error:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
 
-  // Update state
-  const handleChange = (e: any) => {
-    setCourse({ ...course, [e.target.name]: e.target.value });
-  };
+  if (loading) return <p className="p-10 text-center">Loading product details...</p>;
+  if (!course) return <p className="p-10 text-center">Course not found!</p>;
 
-  // Submit update request
-  const handleSubmit = async () => {
-    await axios.put(`${URL}/course/${id}`, course);
-    alert("Course Updated Successfully!");
+  // Update course handler
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:5000/course/${course._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mainTitle: course.mainTitle,
+          description: course.description,
+          recentPrice: course.recentPrice,
+          deletePrice: course.deletePrice,
+          img: course.img,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Course updated successfully!");
+        router.refresh(); // page refresh
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating course");
+    }
   };
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-2xl mb-4">Update Course</h1>
+    <div className="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
+      {/* Left - Image */}
+      <div>
+        <Image
+          src={course.img}
+          alt={course.mainTitle}
+          width={600}
+          height={500}
+          className="w-full h-auto rounded-lg shadow"
+        />
+      </div>
 
-      <input
-        name="title"
-        className="border p-2 w-full mb-2 text-black"
-        value={course.title}
-        onChange={handleChange}
-        placeholder="Course Title"
-      />
+      {/* Right - Details Form */}
+      <div className="space-y-6">
+        <form onSubmit={handleUpdate} className="space-y-4">
+          <input
+            type="text"
+            value={course.mainTitle}
+            onChange={(e) => setCourse({ ...course, mainTitle: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Course Title"
+          />
+          <textarea
+            value={course.description}
+            onChange={(e) => setCourse({ ...course, description: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Course Description"
+          />
+          <input
+            type="text"
+            value={course.recentPrice}
+            onChange={(e) => setCourse({ ...course, recentPrice: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Recent Price"
+          />
+          <input
+            type="text"
+            value={course.deletePrice}
+            onChange={(e) => setCourse({ ...course, deletePrice: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Delete Price"
+          />
+          <input
+            type="text"
+            value={course.img}
+            onChange={(e) => setCourse({ ...course, img: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Image URL"
+          />
 
-      <textarea
-        name="description"
-        className="border p-2 w-full mb-2 text-black"
-        value={course.description}
-        onChange={handleChange}
-        placeholder="Description"
-      />
-
-      <input
-        name="price"
-        className="border p-2 w-full mb-2 text-black"
-        value={course.price}
-        onChange={handleChange}
-        placeholder="Price"
-      />
-
-      <button
-        onClick={handleSubmit}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Update Course
-      </button>
+          <button
+            type="submit"
+            className="w-full py-3 bg-[#0FABCA] text-white rounded-md hover:bg-[#0FABCA]/80 text-lg font-medium"
+          >
+            Update Course
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
+
+export default Page;
