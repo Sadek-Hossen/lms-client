@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getSingleCourses } from "../../../../utils/user/user-api";
-import Link from "next/link";
 
 interface Course {
-  _id: number;
+  _id: string;
   img: string;
   icon1Title: string;
   icon2Title: string;
@@ -19,66 +18,147 @@ interface Course {
 }
 
 const Page = () => {
-    const { id } = useParams<{ id: string }>();
-  const [course, setCourse] = useState<Course | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
 
+  const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // --------------------------
+  // FETCH SINGLE COURSE DATA
+  // --------------------------
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
         const res = await getSingleCourses(id);
-        setCourse(res?.courses || null);
+
+        console.log("Courses from API:", res?.courses);
+
+        if (Array.isArray(res?.courses) && res.courses.length > 0) {
+          setCourse(res.courses[0]);
+        } else {
+          setCourse(null);
+        }
+
       } catch (error) {
         console.log("Error:", error);
+        setCourse(null);
+
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [id]);
-  if (!course)
-    return <p className="p-10 text-center">Loading product details...</p>;
 
+  if (loading) return <p className="p-10 text-center">Loading product details...</p>;
+  if (!course) return <p className="p-10 text-center">Course not found!</p>;
+
+  // --------------------------
+  // UPDATE COURSE HANDLER
+  // --------------------------
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:5000/course/${course._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mainTitle: course.mainTitle,
+          description: course.description,
+          recentPrice: course.recentPrice,
+          deletePrice: course.deletePrice,
+          img: course.img,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Course updated successfully!");
+        router.refresh();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating course");
+    }
+  };
+
+  // --------------------------
+  // UI SECTION
+  // --------------------------
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-10">
+      
       {/* Left - Image */}
       <div>
         <Image
-          src={course.img}
+          src={course.img || "/placeholder.jpg"}
           alt={course.mainTitle}
           width={600}
           height={500}
           className="w-full h-auto rounded-lg shadow"
+          unoptimized
         />
       </div>
 
-      {/* Right - Details */}
+      {/* Right - Form */}
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">{course.mainTitle}</h1>
+        <form onSubmit={handleUpdate} className="space-y-4">
 
-        <p className="text-gray-700">{course.description}</p>
+          <input
+            type="text"
+            value={course.mainTitle}
+            onChange={(e) => setCourse({ ...course, mainTitle: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Course Title"
+          />
 
-        {/* Price */}
-        <div className="flex items-center gap-4">
-          <span className="text-2xl font-semibold text-[#0FABCA]">
-            ${course.recentPrice}
-          </span>
+          <textarea
+            value={course.description}
+            onChange={(e) => setCourse({ ...course, description: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Course Description"
+          />
 
-          {course.deletePrice && (
-            <span className="text-gray-500 line-through text-lg">
-              ${course.deletePrice}
-            </span>
-          )}
-        </div>
+          <input
+            type="text"
+            value={course.recentPrice}
+            onChange={(e) => setCourse({ ...course, recentPrice: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Recent Price"
+          />
 
-        {/* Button (SEND DATA TO CASHOUT PAGE) */}
-        <Link
-          href={`/cashRout?title=${course.mainTitle}&price=${course.recentPrice}&img=${course.img}&desc=${course.description}`}
-        >
-          <button className="w-full py-3 bg-[#0FABCA] text-white rounded-md hover:bg-[#0FABCA]/80 text-lg font-medium">
-            Add to Cart
+          <input
+            type="text"
+            value={course.deletePrice}
+            onChange={(e) => setCourse({ ...course, deletePrice: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Delete Price"
+          />
+
+          <input
+            type="text"
+            value={course.img}
+            onChange={(e) => setCourse({ ...course, img: e.target.value })}
+            className="w-full border px-3 py-2 rounded"
+            placeholder="Image URL"
+          />
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-[#0FABCA] text-white rounded-md hover:bg-[#0FABCA]/80 text-lg font-medium"
+          >
+            Update Course
           </button>
-        </Link>
+        </form>
       </div>
     </div>
   );
